@@ -19,7 +19,13 @@ poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 import matplotlib.pyplot as plt
 
 DPI = 300
+# Margins 
+MT = 120
+ML = 20
+MR = 3509-20
+MB = 2481-40
 
+MC = 50
 
 def load_images(path, dpi=DPI):
     images = []
@@ -74,7 +80,7 @@ def getSkewAngle(image) -> float:
 
     # Find largest contour and surround in min area box
     largestContour = contours[0]
-    print(len(contours))
+    # print(len(contours))
     minAreaRect = cv2.minAreaRect(largestContour)
     cv2.imwrite("temp/boxes.jpg", newImage)
     # Determine the angle. Convert it to the value that was originally used to obtain skewed image
@@ -98,3 +104,49 @@ def deskew(image):
         return image
     else:
         return rotateImage(image, -1.0 * angle)
+
+def scale_image(image, s):
+    w = int(image.shape[1]/s)
+    h = int(image.shape[0]/s)
+    dim = (w, h)
+    return cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
+
+def find_contours(image):
+    image = deskew(image)
+    base_image = image.copy()
+    
+    for s in [1, 4, 8, 16, 32]:
+        workimage = scale_image(image, s)
+
+        gray = cv2.cvtColor(workimage, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(gray, (7, 7), 0) # adjustable
+        thresh = cv2.threshold(
+            blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 13)) # adjustable
+        dilate = cv2.dilate(thresh, kernal, iterations=1) # iterations adjustable?
+
+        cnts = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts)==2 else cnts[1]
+        cnts = sorted(cnts, key=lambda y: cv2.boundingRect(y)[1])
+
+        if len(cnts) < MC: break
+
+    #print(s)
+    #print(len(cnts))
+    i = 0
+    for c in cnts:
+        i = i+1
+        x, y, w, h = cv2.boundingRect(c)
+        x = x*s
+        y = y*s
+        w = w*s
+        h = h*s
+#        print(x, y)
+        if x<ML: continue
+        if y<MT: continue
+        if x>MR: continue
+        if y>MB: continue
+        cv2.rectangle(base_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(base_image, "%d : %d %d, %d %d" % (i, x, y, x+w, y+h), (x+2, y+18), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255,0), 2)
+    # cv2.drawContours(base_image, cnts, -1, (0, 255, 0), 2)
+    return base_image
