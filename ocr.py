@@ -11,6 +11,7 @@ import os
 # https://github.com/wjbmattingly/ocr_python_textbook
 
 import cv2
+import numpy as np
 
 import pdf2image
 poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
