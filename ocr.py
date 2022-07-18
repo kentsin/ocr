@@ -20,10 +20,10 @@ import matplotlib.pyplot as plt
 
 DPI = 300
 # Margins 
-MT = 120
-ML = 20
-MR = 3509-20
-MB = 2481-40
+MT = 200
+ML = 100
+MR = 2481-100
+MB = 3509-200
 
 MC = 50
 
@@ -100,7 +100,7 @@ def rotateImage(image, angle: float):
 
 def deskew(image):
     angle = getSkewAngle(image)
-    if angle==90.0: 
+    if angle>10.0 or angle<-10.0: 
         return image
     else:
         return rotateImage(image, -1.0 * angle)
@@ -128,12 +128,14 @@ def find_contours(image):
         cnts = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if len(cnts)==2 else cnts[1]
         cnts = sorted(cnts, key=lambda y: cv2.boundingRect(y)[1])
-
+        print(s, len(cnts))
         if len(cnts) < MC: break
 
     #print(s)
     #print(len(cnts))
+    cv2.rectangle(base_image, (ML, MT), (MR, MB), (255,0,0), 4)
     i = 0
+
     for c in cnts:
         i = i+1
         x, y, w, h = cv2.boundingRect(c)
@@ -141,11 +143,11 @@ def find_contours(image):
         y = y*s
         w = w*s
         h = h*s
-#        print(x, y)
-        if x<ML: continue
-        if y<MT: continue
-        if x>MR: continue
-        if y>MB: continue
+        #print(x, y)
+        #if x<ML: continue
+        #if y<MT: continue
+        #if x>MR: continue
+        #if y>MB: continue
         cv2.rectangle(base_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
         cv2.putText(base_image, "%d : %d %d, %d %d" % (i, x, y, x+w, y+h), (x+2, y+18), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255,0), 2)
     # cv2.drawContours(base_image, cnts, -1, (0, 255, 0), 2)
