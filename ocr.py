@@ -6,6 +6,8 @@
 # @Version : 0.0.1
 
 import os
+import pickle
+from turtle import goto
 
 # https://www.youtube.com/watch?v=ADV-AjAXHdc&list=PL2VXyKi-KpYuTAZz__9KVl1jQz74bDG7i&index=5
 # https://github.com/wjbmattingly/ocr_python_textbook
@@ -26,6 +28,13 @@ MR = 2481-100
 MB = 3509-200
 
 MC = 50
+
+TEMP_DICT_FILE = r"E:\workspace\ocr\template_dict.pki"
+
+template_dict = pickle.load(open(TEMP_DICT_FILE, "rb"))
+# template_dict = {'cc': [img1, img2], 'al':[img1, img2]}
+
+TEMPLATE_METHOD = cv2.TM_CCOEFF_NORMED
 
 def load_images(path, dpi=DPI):
     images = []
@@ -152,3 +161,23 @@ def find_contours(image):
         cv2.putText(base_image, "%d : %d %d, %d %d" % (i, x, y, x+w, y+h), (x+2, y+18), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255,0), 2)
     # cv2.drawContours(base_image, cnts, -1, (0, 255, 0), 2)
     return base_image
+
+# https://www.youtube.com/watch?v=T-0lZWYWE9Y
+
+def match_head_foot(image):
+    working = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    for org in template_dict.keys():
+
+        for t in template_dict[org]:
+            result = cv2.matchTemplate(working, t, TEMPLATE_METHOD)
+            min_v, max_v, min_l, max_l = cv2.minMaxLoc(result)
+            print(org, max_v)
+            if max_v < 0.7: # fail no need to try next
+                break
+            h, w = t.shape
+            print(org, max_v)
+            loc = max_l
+            bottom_right = (loc[0]+ w, loc[1]+h)
+            cv2.rectangle(image, loc, bottom_right, 0, 2)
+            return image
+    return image # fail to match
