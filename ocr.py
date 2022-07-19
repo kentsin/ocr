@@ -187,3 +187,18 @@ def match_head_foot(image):
             break
         
     return image # fail to match
+
+if __name__ == "__main__":
+    dir_files = [f for f in os.listdir(".") if os.path.isfile(os.path.join(".", f))]
+    for file in dir_files:
+        if file.endswith('.pdf'):
+            
+            imgs = load_images(file)
+            i = 0
+            for img in imgs:
+                i = i+1
+                resultimage = match_head_foot(img)
+                file_name = file[:-4]+"-"+str(i)+".jpg"
+                print(file_name)
+                cv2.imwrite(file_name, resultimage)
+                
