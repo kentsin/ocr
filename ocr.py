@@ -166,18 +166,24 @@ def find_contours(image):
 
 def match_head_foot(image):
     working = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    match_this = False
     for org in template_dict.keys():
-
+        next_org = False
         for t in template_dict[org]:
+            if next_org: break
             result = cv2.matchTemplate(working, t, TEMPLATE_METHOD)
             min_v, max_v, min_l, max_l = cv2.minMaxLoc(result)
             print(org, max_v)
-            if max_v < 0.7: # fail no need to try next
+            if not match_this and max_v < 0.7: # fail no need to try next
+                next_org = True
                 break
+            match_this = True
             h, w = t.shape
-            print(org, max_v)
+            # print(org, max_v)
             loc = max_l
             bottom_right = (loc[0]+ w, loc[1]+h)
             cv2.rectangle(image, loc, bottom_right, 0, 2)
-            return image
+        if match_this:
+            break
+        
     return image # fail to match
