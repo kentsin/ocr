@@ -133,9 +133,10 @@ def find_contours(image):
         workimage = scale_image(image, s)
 
     #    gray = cv2.cvtColor(workimage, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(workimage, (7, 7), 0) # adjustable
+        blur = cv2.GaussianBlur(workimage, (7, 1), 0) # adjustable (7,7)
+        nonoise = cv2.fastNlMeansDenoising(blur, None, 20, 7, 21)
         thresh = cv2.threshold(
-            blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+            nonoise, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 13)) # adjustable
         dilate = cv2.dilate(thresh, kernal, iterations=1) # iterations adjustable?
 
@@ -164,7 +165,7 @@ def find_contours(image):
         #if y>MB: continue
         cv2.rectangle(base_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
         cv2.putText(base_image, "%d : %d %d, %d %d" % (i, x, y, x+w, y+h), (x+2, y+18), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255,0), 2)
-    # cv2.drawContours(base_image, cnts, -1, (0, 255, 0), 2)
+    cv2.drawContours(base_image, cnts, -1, (0, 255, 0), 2)
     return base_image
 
 # https://www.youtube.com/watch?v=T-0lZWYWE9Y
@@ -182,10 +183,16 @@ if __name__=="__main__":
     for f in glob.glob("*.pdf"):
         imgs = load_images(f)
         i = 0
+        
         for img in imgs:
             i += 1
-            work = deskew(img)
-            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))            
+            h, w = img.shape
+
+            work = deskew(img[MT:h-MB, ML:w-MR]) 
+
+            work = cv2.copyMakeBorder(work, 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=255 )
+            result = find_contours(work)
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", result)            
             
             #txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
             # print(txt)
