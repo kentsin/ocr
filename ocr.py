@@ -187,7 +187,7 @@ if __name__=="__main__":
             work = deskew(img)
             i = i+1
             h, w = work.shape
-            txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
+            txt += pytesseract.image_to_string(work[0:h, ML:w-MR], lang="chi_tra+por+eng")
             # print(txt)
             cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
