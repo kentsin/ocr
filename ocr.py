@@ -16,6 +16,9 @@ from turtle import goto
 # https://github.com/wjbmattingly/ocr_python_textbook
 
 import pytesseract
+
+LANG = r"chi_tra+por+eng"
+TESSERACT_CONFIG = r"--psm 6 --oem 3"
 import cv2
 import numpy as np
 
@@ -27,7 +30,7 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-MT = 80 # 200
+MT = 80 # 200 多位議員質詢第二頁
 ML = 50
 MR = 50
 MB = 100 # 521885f97e2e148050.pdf 陳虹 2020-10-14 質詢 footnote cutted
@@ -191,7 +194,7 @@ if __name__=="__main__":
             work = img[MT:h-MB, ML:w-MR]
             deskewed = deskew(work)
             cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
-            txt += pytesseract.image_to_string(deskewed, lang="chi_tra+por+eng")
+            txt += pytesseract.image_to_string(deskewed, lang=LANG, config=TESSERACT_CONFIG)
             # print(txt)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
