@@ -44,11 +44,7 @@ TEMPLATE_METHOD = cv2.TM_CCOEFF_NORMED
 def load_images(path, dpi=DPI):
     images = []
     images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2GRAY),
-<<<<<<< Updated upstream
-                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path) )))
-=======
-                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path), )))
->>>>>>> Stashed changes
+                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path))))
     return images
 
 # https://stackoverflow.com/questions/28816046/
