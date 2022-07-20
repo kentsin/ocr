@@ -6,26 +6,31 @@
 # @Version : 0.0.1
 
 import os
+import ntpath
+import io
+import glob
 import pickle
 from turtle import goto
 
 # https://www.youtube.com/watch?v=ADV-AjAXHdc&list=PL2VXyKi-KpYuTAZz__9KVl1jQz74bDG7i&index=5
 # https://github.com/wjbmattingly/ocr_python_textbook
 
+import pytesseract
 import cv2
 import numpy as np
 
 import pdf2image
 poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
+
 import matplotlib.pyplot as plt
 
-DPI = 300
+DPI = 150
 # Margins 
-MT = 200
-ML = 100
-MR = 2481-100
-MB = 3509-200
+MT = 240 # 200
+ML = 105
+MR = 105
+MB = 140 # 200
 
 MC = 50
 
@@ -38,14 +43,14 @@ TEMPLATE_METHOD = cv2.TM_CCOEFF_NORMED
 
 def load_images(path, dpi=DPI):
     images = []
-    images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2BGR),
-                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path), )))
+    images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2GRAY),
+                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path))))
     return images
 
 # https://stackoverflow.com/questions/28816046/
 # displaying-different-images-with-actual-size-in-matplotlib-subplot
 def display(image):
-    dpi = 80
+    dpi = 150
 
     height, width = image.shape[:2]
 
@@ -67,8 +72,8 @@ def display(image):
 def getSkewAngle(image) -> float:
     # Prep image, copy, convert to gray scale, blur, and threshold
     newImage = image.copy()
-    gray = cv2.cvtColor(newImage, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (9, 9), 0)
+    # gray = cv2.cvtColor(newImage, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(newImage, (9, 9), 0)
     thresh = cv2.threshold(
         blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
@@ -127,8 +132,8 @@ def find_contours(image):
     for s in [1, 4, 8, 16, 32]:
         workimage = scale_image(image, s)
 
-        gray = cv2.cvtColor(workimage, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (7, 7), 0) # adjustable
+    #    gray = cv2.cvtColor(workimage, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(workimage, (7, 7), 0) # adjustable
         thresh = cv2.threshold(
             blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 13)) # adjustable
@@ -163,4 +168,28 @@ def find_contours(image):
     return base_image
 
 # https://www.youtube.com/watch?v=T-0lZWYWE9Y
+
+def cut_margins(img):
+    h, w, _ = img.shape
+    cv2.rectangle(img, (0,0), (w, MT), (0,0,0), 2)
+    cv2.rectangle(img, (0,h-MB), (w, h), (0,0,0), 2)
+    cv2.rectangle(img, (0,0), (ML, h), (0,0,0), 2)
+    cv2.rectangle(img, (w-MR,0), (w, h), (0,0,0), 2)
+    return img
+
+if __name__=="__main__":
+    
+    for f in glob.glob("*.pdf"):
+        imgs = load_images(f)
+        txt = u""
+        i = 0
+        for img in imgs:
+            work = deskew(img)
+            i = i+1
+            h, w = work.shape
+            txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
+            # print(txt)
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
+        with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
+            f.write(txt)
 
