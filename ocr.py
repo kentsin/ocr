@@ -27,10 +27,10 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-MT = 240 # 200
-ML = 105
-MR = 105
-MB = 140 # 200
+MT = 80 # 200
+ML = 50
+MR = 50
+MB = 100 # 521885f97e2e148050.pdf 陳虹 2020-10-14 質詢 footnote cutted
 
 MC = 50
 
@@ -182,14 +182,18 @@ if __name__=="__main__":
     for f in glob.glob("*.pdf"):
         imgs = load_images(f)
         i = 0
+        txt = u""
         for img in imgs:
             i += 1
-            work = deskew(img)
-            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))            
-            
-            #txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
+            # work = deskew(img)
+            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))        
+            h, w = img.shape    
+            work = img[MT:h-MB, ML:w-MR]
+            deskewed = deskew(work)
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
+            txt += pytesseract.image_to_string(deskewed, lang="chi_tra+por+eng")
             # print(txt)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
-        #with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
-        #    f.write(txt)
+        with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
+            f.write(txt)
 
