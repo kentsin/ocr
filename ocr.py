@@ -10,12 +10,15 @@ import ntpath
 import io
 import glob
 import pickle
-from turtle import goto
 
 # https://www.youtube.com/watch?v=ADV-AjAXHdc&list=PL2VXyKi-KpYuTAZz__9KVl1jQz74bDG7i&index=5
 # https://github.com/wjbmattingly/ocr_python_textbook
 
 import pytesseract
+
+LANG = r"chi_tra+por+eng"
+TESSERACT_CONFIG = r"--psm 6 --oem 3"
+
 import cv2
 import numpy as np
 
@@ -27,10 +30,10 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-MT = 180 # 200
-ML = 55
-MR = 55
-MB = 100 # 200
+MT = 80 # 200 多位議員質詢第二頁
+ML = 50
+MR = 50
+MB = 100 # 521885f97e2e148050.pdf 陳虹 2020-10-14 質詢 footnote cutted
 
 MC = 50
 
@@ -181,15 +184,17 @@ if __name__=="__main__":
     
     for f in glob.glob("*.pdf"):
         imgs = load_images(f)
-        txt = u""
         i = 0
+        txt = u""
         for img in imgs:
-            work = deskew(img)
-            img2 = cut_margins(work)
-            i = i+1
-            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img2)
-            h, w = work.shape
-            txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
+            i += 1
+            # work = deskew(img)
+            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))        
+            h, w = img.shape    
+            work = img[MT:h-MB, ML:w-MR]
+            deskewed = deskew(work)
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
+            txt += pytesseract.image_to_string(deskewed, lang=LANG, config=TESSERACT_CONFIG)
             # print(txt)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
