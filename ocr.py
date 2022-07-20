@@ -27,10 +27,10 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-MT = 240 # 200
-ML = 15
-MR = 15
-MB = 120 # 200
+MT = 180 # 200
+ML = 55
+MR = 55
+MB = 100 # 200
 
 MC = 50
 
@@ -170,7 +170,7 @@ def find_contours(image):
 # https://www.youtube.com/watch?v=T-0lZWYWE9Y
 
 def cut_margins(img):
-    h, w, _ = img.shape
+    h, w = img.shape
     cv2.rectangle(img, (0,0), (w, MT), (0,0,0), 2)
     cv2.rectangle(img, (0,h-MB), (w, h), (0,0,0), 2)
     cv2.rectangle(img, (0,0), (ML, h), (0,0,0), 2)
@@ -185,11 +185,13 @@ if __name__=="__main__":
         i = 0
         for img in imgs:
             work = deskew(img)
+            img2 = cut_margins(work)
             i = i+1
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img2)
             h, w = work.shape
             txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
             # print(txt)
-            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
+            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
             f.write(txt)
 
