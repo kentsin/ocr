@@ -27,17 +27,10 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-<<<<<<< Updated upstream
 MT = 240 # 200
 ML = 105
 MR = 105
 MB = 140 # 200
-=======
-MT = 200
-ML = 100
-MR = 100
-MB = 120
->>>>>>> Stashed changes
 
 MC = 50
 
