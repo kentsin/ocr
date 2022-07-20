@@ -19,6 +19,7 @@ import pytesseract
 
 LANG = r"chi_tra+por+eng"
 TESSERACT_CONFIG = r"--psm 6 --oem 3"
+
 import cv2
 import numpy as np
 
