@@ -27,10 +27,17 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
+<<<<<<< Updated upstream
 MT = 240 # 200
 ML = 105
 MR = 105
 MB = 140 # 200
+=======
+MT = 200
+ML = 100
+MR = 100
+MB = 120
+>>>>>>> Stashed changes
 
 MC = 50
 
@@ -44,7 +51,11 @@ TEMPLATE_METHOD = cv2.TM_CCOEFF_NORMED
 def load_images(path, dpi=DPI):
     images = []
     images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2GRAY),
+<<<<<<< Updated upstream
                   pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path) )))
+=======
+                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path), )))
+>>>>>>> Stashed changes
     return images
 
 # https://stackoverflow.com/questions/28816046/
