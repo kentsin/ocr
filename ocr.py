@@ -27,10 +27,10 @@ import matplotlib.pyplot as plt
 
 DPI = 150
 # Margins 
-MT = 240 # 200
-ML = 105
-MR = 105
-MB = 140 # 200
+MT = 100 # 200
+ML = 10
+MR = 10
+MB = 100 # 200
 
 MC = 50
 
