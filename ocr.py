@@ -43,8 +43,8 @@ TEMPLATE_METHOD = cv2.TM_CCOEFF_NORMED
 
 def load_images(path, dpi=DPI):
     images = []
-    images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2BGR),
-                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path, grayscale=True), )))
+    images.extend(list(map(lambda image: cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2GRAY),
+                  pdf2image.convert_from_path(path, dpi=dpi, poppler_path=poppler_path) )))
     return images
 
 # https://stackoverflow.com/questions/28816046/
@@ -182,14 +182,14 @@ if __name__=="__main__":
     for f in glob.glob("*.pdf"):
         imgs = load_images(f)
         txt = u""
-        # i = 0
+        i = 0
         for img in imgs:
             work = deskew(img)
-            # i = i+1
-            h, w, _ = work.shape
+            i = i+1
+            h, w = work.shape
             txt += pytesseract.image_to_string(work[MT:h-MB, ML:w-MR], lang="chi_tra+por+eng")
             # print(txt)
-            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
             f.write(txt)
 
