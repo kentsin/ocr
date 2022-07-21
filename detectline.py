@@ -30,7 +30,8 @@ ML = 80   # 25
 MR = 80   # 25
 MB = 60   # 40
 
-TH= 12
+TH = 12
+
 
 def load_images(path, dpi=DPI):
     images = []
@@ -62,6 +63,7 @@ def display(image):
 
     plt.show()
 
+
 def getSkewAngle(image) -> float:
     # Prep image, copy, convert to gray scale, blur, and threshold
     newImage = image.copy()
@@ -85,7 +87,7 @@ def getSkewAngle(image) -> float:
         i += 1
         rect = cv2.boundingRect(c)
         x, y, w, h = rect
-        
+
         cv2.rectangle(newImage, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
     # Find largest contour and surround in min area box
@@ -99,6 +101,7 @@ def getSkewAngle(image) -> float:
         angle = 90 + angle
     return -1.0 * angle
 
+
 def rotateImage(image, angle: float):
     newImage = image.copy()
     (h, w) = newImage.shape[:2]
@@ -108,19 +111,21 @@ def rotateImage(image, angle: float):
         newImage, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
     return newImage
 
+
 def deskew(image):
     angle = getSkewAngle(image)
-    if angle>10.0 or angle<-10.0: 
+    if angle > 10.0 or angle < -10.0:
         return image
     else:
         return rotateImage(image, -1.0 * angle)
 
+
 def cut_margins(img):
     h, w = img.shape
-    cv2.rectangle(img, (0,0), (w, MT), (0,0,0), 2)
-    cv2.rectangle(img, (0,h-MB), (w, h), (0,0,0), 2)
-    cv2.rectangle(img, (0,0), (ML, h), (0,0,0), 2)
-    cv2.rectangle(img, (w-MR,0), (w, h), (0,0,0), 2)
+    cv2.rectangle(img, (0, 0), (w, MT), (0, 0, 0), 2)
+    cv2.rectangle(img, (0, h-MB), (w, h), (0, 0, 0), 2)
+    cv2.rectangle(img, (0, 0), (ML, h), (0, 0, 0), 2)
+    cv2.rectangle(img, (w-MR, 0), (w, h), (0, 0, 0), 2)
     return img
 
 
@@ -137,7 +142,6 @@ def pre_proc(img):
     return dilate
 
 
-
 if __name__ == "__main__":
 
     for f in glob.glob("*.pdf"):
@@ -148,69 +152,76 @@ if __name__ == "__main__":
         for img in imgs:
 
             y_height, x_width = img.shape
-            
+
             i += 1
             work = pre_proc(img)
-            cnts = cv2.findContours(work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            cnts = cnts[0] if len(cnts)==2 else cnts[1]
+            cnts = cv2.findContours(
+                work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = cnts[0] if len(cnts) == 2 else cnts[1]
             cnts = sorted(cnts, key=lambda cnt1: cv2.boundingRect(cnt1)[1])
 
-            # Draw boxes for debug            
+            # Draw boxes for debug
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 1)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0), 1)
 
             # skip c when outside of margins
             # combine when vertically close together
             # we just care about x,y, w, h
             # combin contours of same heigh
-            
-            x, y, w, h = cv2.boundingRect(cnts[0]) # Current Expanding box
+
+            x, y, w, h = cv2.boundingRect(cnts[0])  # Current Expanding box
             new_cnts = []
-            
+
             for c in cnts:
-                
+
                 x1, y1, w1, h1 = cv2.boundingRect(c)
-                if ML>=x1 or x1>=x_width-MR
-                    #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
-                    #x,y,w,h = x1,y1,w1,h1
-                    continue
-                if MT>=y1 or y1>=y_height-MB :
+                if ML >= x1 or x1 >= x_width-MR
+                #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
+                #x,y,w,h = x1,y1,w1,h1
+                continue
+                if MT >= y1 or y1 >= y_height-MB:
                     #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
 
                 if w1*h1 < 999:
-                    #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)  
+                    #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
 
                 #print( x, y, w, h, "|", x1, y1, w1, h1)
-                if y1-(y+h)<TH:  # if it close to last box  
-                    x, y, w, h = min(x, x1), min(y, y1), max(x+w, x1+w1)-min(x, x1), max(y+h,y1+h1)-min(y, y1)
+                if y1-(y+h) < TH:  # if it close to last box
+                    x, y, w, h = min(x, x1), min(y, y1), max(
+                        x+w, x1+w1)-min(x, x1), max(y+h, y1+h1)-min(y, y1)
                 else:
 
                     new_cnts.append((x, y, w, h))
-                    # x, y, w, h = x1, y1, w1, h1  # 
+                    # x, y, w, h = x1, y1, w1, h1  #
                     x, y, w, h = x1, y1, w1, h1
-                     
-
-            if y1-(y+h)<TH:
-                new_cnts.append((min(x,x1), min(y,y1), max(x+w, x1+w1)-min(x,x1), max(y+h, y1+h1)-min(y,y1)))
-            else:
-                new_cnts.append((x,y,w,h))
-                if  ML>=x1 or x1>=W-MR or MT>=y1 or y1>=H-MB or w1*h1 < 999:
-                    pass
-                else:
-                    new_cnts.append((x1, y1, w1, h1))
             
+            # Last two waiting
+
+            if y1-(y+h) < TH:
+                new_cnts.append((min(x, x1), min(y, y1), max(
+                    x+w, x1+w1)-min(x, x1), max(y+h, y1+h1)-min(y, y1)))
+            
+            new_cnts.append((x, y, w, h))
+
+            if ML >= x1 or x1 >= W-MR or MT >= y1 or y1 >= H-MB or w1*h1 < 999:
+                pass
+            else:
+                new_cnts.append((x1, y1, w1, h1))
+
             for c in new_cnts:
                 j += 1
                 x, y, w, h = c
-                txt += pytesseract.image_to_string(img[y:y+h, x:x+w], lang=LANG, config = TESSERACT_CONFIG)
+                txt += pytesseract.image_to_string(
+                    img[y:y+h, x:x+w], lang=LANG, config=TESSERACT_CONFIG)
                 #txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
-                cv2.putText(img, str(j), (x+4, y+4), cv2.FONT_HERSHEY_COMPLEX, 1,(0,0), 1)
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 4)
+                cv2.putText(img, str(j), (x+4, y+4),
+                            cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0), 1)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0), 4)
 
             cv2.imwrite(ntpath.basename(f)[:-4] +
                         "-box-"+str(i)+".jpg", img)
