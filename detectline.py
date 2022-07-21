@@ -171,16 +171,16 @@ if __name__ == "__main__":
                 x1, y1, w1, h1 = cv2.boundingRect(c)
 
                 if ML>=x1 or x1>=W-MR : 
-                    txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
+                    #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
                 if MT>=y1 or y1>=H-MB :
-                    txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
+                    #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
 
                 if w1*h1 < 999:
-                    txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)  
+                    #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)  
                     #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
 
@@ -206,8 +206,8 @@ if __name__ == "__main__":
             for c in new_cnts:
                 j += 1
                 x, y, w, h = c
-                t = pytesseract.image_to_string(img[y:y+h, x:x+w], lang=LANG, config = TESSERACT_CONFIG)
-                txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
+                txt += pytesseract.image_to_string(img[y:y+h, x:x+w], lang=LANG, config = TESSERACT_CONFIG)
+                #txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
                 cv2.putText(img, str(j), (x+4, y+4), cv2.FONT_HERSHEY_COMPLEX, 1,(0,0), 1)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 4)
 
