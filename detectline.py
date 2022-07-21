@@ -25,10 +25,10 @@ poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
 DPI = 150
 
-MT = 80 
-ML = 25
-MR = 25
-MB = 40
+MT = 80   # 80
+ML = 80   # 25
+MR = 80   # 25
+MB = 60   # 40
 
 TH= 12
 
@@ -146,7 +146,9 @@ if __name__ == "__main__":
         j = 0
         txt = u""
         for img in imgs:
-            H, W = img.shape
+
+            y_height, x_width = img.shape
+            
             i += 1
             work = pre_proc(img)
             cnts = cv2.findContours(work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -170,11 +172,10 @@ if __name__ == "__main__":
                 
                 x1, y1, w1, h1 = cv2.boundingRect(c)
 
-                if ML>=x1 or x1>=W-MR : 
                     #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
-                if MT>=y1 or y1>=H-MB :
+                if MT>=y1 or y1>=y_height-MB :
                     #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
