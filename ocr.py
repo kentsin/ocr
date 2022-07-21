@@ -53,7 +53,7 @@ def load_images(path, dpi=DPI):
 # https://stackoverflow.com/questions/28816046/
 # displaying-different-images-with-actual-size-in-matplotlib-subplot
 def display(image):
-    dpi = 150
+    dpi = DPI
 
     height, width = image.shape[:2]
 
