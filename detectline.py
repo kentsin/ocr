@@ -30,7 +30,7 @@ ML = 25
 MR = 25
 MB = 40
 
-TH= 8
+TH= 12
 
 def load_images(path, dpi=DPI):
     images = []
@@ -153,43 +153,49 @@ if __name__ == "__main__":
             cnts = cnts[0] if len(cnts)==2 else cnts[1]
             cnts = sorted(cnts, key=lambda cnt1: cv2.boundingRect(cnt1)[1])
 
-            # we just care about x,y, w, h
-            # combin contours of same heigh
-
+            # Draw boxes for debug            
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 1)
 
-            x, y, w, h = cv2.boundingRect(cnts[0]) 
+            # skip c when outside of margins
+            # combine when vertically close together
+            # we just care about x,y, w, h
+            # combin contours of same heigh
+            
+            x, y, w, h = cv2.boundingRect(cnts[0]) # Current Expanding box
             new_cnts = []
-            n = len(cnts)
-            for k in range(n-1):
+            
+            for c in cnts:
                 
-                x1, y1, w1, h1 = cv2.boundingRect(cnts[k+1])
+                x1, y1, w1, h1 = cv2.boundingRect(c)
 
-                if ML>=x1 or x1+w1>=W-MR : 
-                    # txt += "skip ML : %d %d %d %d" % (x1, y1, w1, h1) ; 
-                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                if ML>=x1 or x1>=W-MR : 
+                    txt += "skip ML : %d %d %d %d" % (x1, y1, w1, h1)
                     continue
-                if MT>=y1 or y1+h1>=H-MB :
-                    # txt += "skip MT : %d %d %d %d"% (x1, y1, w1, h1) ; 
-                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                if MT>=y1 or y1>=H-MB :
+                    txt += "skip MT : %d %d %d %d"% (x1, y1, w1, h1)
                     continue
 
-                if w1*h1 < 999: 
-                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                if w1*h1 < 999:
+                    txt += "skip 9 : %d %d %d %d " % (x1, y1, w1, h1)  
                     continue   # 900: continue
+
                 #print( x, y, w, h, "|", x1, y1, w1, h1)
-                if (y1+TH > y and y1-TH < y+h) or ( y1+y1+TH > y and y1+y1-TH < y+h):  # if it close to last box or within  
-                    x = min(x1, x)
-                    y = min(y, y1)
-                    w = max(x+w, x1+w1)-x+1
-                    h = max(y+h, y1+h1)-y+1
+                if y1-(y+h)<TH:  # if it close to last box  
+                    x, y, w, h = min(x, x1), min(y, y1), max(x+w, x1+w1)-min(x, x1), max(y+h,y1+h1)-min(y, y1)
                 else:
                     new_cnts.append((x, y, w, h))
-                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                    # x, y, w, h = x1, y1, w1, h1  # 
+                    x, y, w, h = x1, y1, w1, h1
                     #print("ADD", x, y, w, h)       
-            new_cnts.append((x, y, w, h))
+
+            if y1-(y+h)<TH:
+                new_cnts.append((min(x,x1), min(y,y1), max(x+w, x1+w1)-min(x,x1), max(y+h, y1+h1)-min(y,y1)))
+            else:
+                new_cnts.append((x,y,w,h))
+                new_cnts.append((x1, y1, w1, h1))
+            
             for c in new_cnts:
                 j += 1
                 x, y, w, h = c
@@ -197,6 +203,7 @@ if __name__ == "__main__":
                 txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
                 cv2.putText(img, str(j), (x+4, y+4), cv2.FONT_HERSHEY_COMPLEX, 1,(0,0), 1)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 4)
+
             cv2.imwrite(ntpath.basename(f)[:-4] +
                         "-box-"+str(i)+".jpg", img)
 
