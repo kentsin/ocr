@@ -151,7 +151,7 @@ if __name__ == "__main__":
             work = pre_proc(img)
             cnts = cv2.findContours(work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = cnts[0] if len(cnts)==2 else cnts[1]
-            cnts = sorted(cnts, key=lambda y: cv2.boundingRect(y)[1])
+            cnts = sorted(cnts, key=lambda cnt1: cv2.boundingRect(cnt1)[1])
 
             # we just care about x,y, w, h
             # combin contours of same heigh
@@ -166,10 +166,19 @@ if __name__ == "__main__":
             for k in range(n-1):
                 
                 x1, y1, w1, h1 = cv2.boundingRect(cnts[k+1])
-                
-                if ML>=x1 or x1+w1>=W-MR : continue
-                if MT>=y1 or y1+h1>=H-MB : continue
-                if w1*h1 < 999: continue   # 900: continue
+
+                if ML>=x1 or x1+w1>=W-MR : 
+                    # txt += "skip ML : %d %d %d %d" % (x1, y1, w1, h1) ; 
+                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                    continue
+                if MT>=y1 or y1+h1>=H-MB :
+                    # txt += "skip MT : %d %d %d %d"% (x1, y1, w1, h1) ; 
+                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                    continue
+
+                if w1*h1 < 999: 
+                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                    continue   # 900: continue
                 #print( x, y, w, h, "|", x1, y1, w1, h1)
                 if (y1+TH > y and y1-TH < y+h) or ( y1+y1+TH > y and y1+y1-TH < y+h):  # if it close to last box or within  
                     x = min(x1, x)
