@@ -6,6 +6,8 @@
 # @Version : 0.0.1
 
 import os
+import ntpath
+import glob
 
 import pytesseract
 import numpy as np
@@ -79,7 +81,7 @@ if __name__ == "__main__":
             #deskewed = deskew(work)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
             #txt += pytesseract.image_to_string(deskewed,
-                                               lang=LANG, config=TESSERACT_CONFIG)
+            #                                   lang=LANG, #config=TESSERACT_CONFIG)
             # print(txt)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
         #with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
