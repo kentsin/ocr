@@ -18,12 +18,12 @@ import matplotlib.pyplot as plt
 import pdf2image
 poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
-DPI = 300
+DPI = 150
 
 MT = 80 
 ML = 50
 MR = 50
-MB = 95
+MB = 90
 
 
 def load_images(path, dpi=DPI):
@@ -37,7 +37,7 @@ def load_images(path, dpi=DPI):
 
 
 def display(image):
-    dpi = 300
+    dpi = DPI
 
     height, width = image.shape[:2]
 
@@ -128,6 +128,7 @@ def pre_proc(img):
     return dilate
 
 
+
 if __name__ == "__main__":
 
     for f in glob.glob("*.pdf"):
@@ -137,8 +138,13 @@ if __name__ == "__main__":
         for img in imgs:
             i += 1
             work = pre_proc(img)
+            cnts = cv2.findContours(work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = cnts[0] if len(cnts)==2 else cnts[1]
+            for c in cnts:
+                x, y, w, h = cv2.boundingRect(c)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 2)
             cv2.imwrite(ntpath.basename(f)[:-4] +
-                        "-dilated-"+str(i)+".png", work)
+                        "-dilated-"+str(i)+".png", img)
             # h, w = work.shape
             #work = img[MT:h-MB, ML:w-MR]
             #deskewed = deskew(work)

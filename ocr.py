@@ -33,7 +33,7 @@ DPI = 150
 MT = 80 # 200 多位議員質詢第二頁
 ML = 50
 MR = 50
-MB = 95 # 521885f97e2e148050.pdf 陳虹 2020-10-14 質詢 footnote cutted
+MB = 90 # 521885f97e2e148050.pdf 陳虹 2020-10-14 質詢 footnote cutted
 
 MC = 50
 
