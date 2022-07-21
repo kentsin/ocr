@@ -171,7 +171,7 @@ if __name__ == "__main__":
             for c in cnts:
                 
                 x1, y1, w1, h1 = cv2.boundingRect(c)
-
+                if ML>=x1 or x1>=x_width-MR
                     #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
