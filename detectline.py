@@ -142,9 +142,9 @@ if __name__ == "__main__":
             cnts = cnts[0] if len(cnts)==2 else cnts[1]
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 2)
+                cv2.rectangle(work, (x, y), (x+w, y+h), (0,0), 2)
             cv2.imwrite(ntpath.basename(f)[:-4] +
-                        "-dilated-"+str(i)+".png", img)
+                        "-box-"+str(i)+".png", work)
             # h, w = work.shape
             #work = img[MT:h-MB, ML:w-MR]
             #deskewed = deskew(work)
