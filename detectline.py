@@ -154,7 +154,9 @@ if __name__ == "__main__":
             y_height, x_width = img.shape
 
             i += 1
+            
             work = pre_proc(img)
+            work = deskew(work)
             cnts = cv2.findContours(
                 work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = cnts[0] if len(cnts) == 2 else cnts[1]
