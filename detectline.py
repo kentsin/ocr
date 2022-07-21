@@ -6,6 +6,7 @@
 # @Version : 0.0.1
 
 import os
+import io
 import ntpath
 import glob
 
@@ -16,15 +17,20 @@ import cv2
 import matplotlib.pyplot as plt
 
 import pdf2image
+
+LANG = r"chi_tra+por+eng"
+TESSERACT_CONFIG = r"--psm 6 --oem 3"
+
 poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
 DPI = 150
 
 MT = 80 
-ML = 50
-MR = 50
-MB = 90
+ML = 25
+MR = 25
+MB = 40
 
+TH= 8
 
 def load_images(path, dpi=DPI):
     images = []
@@ -67,16 +73,19 @@ def getSkewAngle(image) -> float:
     # Apply dilate to merge text into meaningful lines/paragraphs.
     # Use larger kernel on X axis to merge characters into single line, cancelling out any spaces.
     # But use smaller kernel on Y axis to separate between different blocks of text
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 5))
-    dilate = cv2.dilate(thresh, kernel, iterations=2)
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 50))
+    dilate = cv2.dilate(thresh, kernel, iterations=1)
 
     # Find all contours
     contours, hierarchy = cv2.findContours(
         dilate, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    i = 0
     for c in contours:
+        i += 1
         rect = cv2.boundingRect(c)
         x, y, w, h = rect
+        
         cv2.rectangle(newImage, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
     # Find largest contour and surround in min area box
@@ -122,7 +131,7 @@ def pre_proc(img):
     thresh = cv2.threshold(
         blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
-    kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 50))
+    kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 13))
     dilate = cv2.dilate(thresh, kernal, iterations=1)
 
     return dilate
@@ -134,24 +143,53 @@ if __name__ == "__main__":
     for f in glob.glob("*.pdf"):
         imgs = load_images(f)
         i = 0
+        j = 0
         txt = u""
         for img in imgs:
+            H, W = img.shape
             i += 1
             work = pre_proc(img)
             cnts = cv2.findContours(work, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = cnts[0] if len(cnts)==2 else cnts[1]
+            cnts = sorted(cnts, key=lambda y: cv2.boundingRect(y)[1])
+
+            # we just care about x,y, w, h
+            # combin contours of same heigh
+
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(work, (x, y), (x+w, y+h), (0,0), 2)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 1)
+
+            x, y, w, h = cv2.boundingRect(cnts[0]) 
+            new_cnts = []
+            n = len(cnts)
+            for k in range(n-1):
+                
+                x1, y1, w1, h1 = cv2.boundingRect(cnts[k+1])
+                
+                if ML>=x1 or x1+w1>=W-MR : continue
+                if MT>=y1 or y1+h1>=H-MB : continue
+                if w1*h1 < 999: continue   # 900: continue
+                #print( x, y, w, h, "|", x1, y1, w1, h1)
+                if (y1+TH > y and y1-TH < y+h) or ( y1+y1+TH > y and y1+y1-TH < y+h):  # if it close to last box or within  
+                    x = min(x1, x)
+                    y = min(y, y1)
+                    w = max(x+w, x1+w1)-x+1
+                    h = max(y+h, y1+h1)-y+1
+                else:
+                    new_cnts.append((x, y, w, h))
+                    x, y, w, h = cv2.boundingRect(cnts[k+1])
+                    #print("ADD", x, y, w, h)       
+            new_cnts.append((x, y, w, h))
+            for c in new_cnts:
+                j += 1
+                x, y, w, h = c
+                t = pytesseract.image_to_string(img[y:y+h, x:x+w], lang=LANG, config = TESSERACT_CONFIG)
+                txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
+                cv2.putText(img, str(j), (x+4, y+4), cv2.FONT_HERSHEY_COMPLEX, 1,(0,0), 1)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (0,0), 4)
             cv2.imwrite(ntpath.basename(f)[:-4] +
-                        "-box-"+str(i)+".png", work)
-            # h, w = work.shape
-            #work = img[MT:h-MB, ML:w-MR]
-            #deskewed = deskew(work)
-            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
-            #txt += pytesseract.image_to_string(deskewed,
-            #                                   lang=LANG, #config=TESSERACT_CONFIG)
-            # print(txt)
-            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
-        #with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
-        #    f.write(txt)
+                        "-box-"+str(i)+".jpg", img)
+
+        with io.open(ntpath.basename(f)[:-4]+".txt", "w", encoding="utf8") as f:
+            f.write(txt)
