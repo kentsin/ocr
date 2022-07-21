@@ -10,7 +10,6 @@ import ntpath
 import io
 import glob
 import pickle
-from turtle import goto
 
 # https://www.youtube.com/watch?v=ADV-AjAXHdc&list=PL2VXyKi-KpYuTAZz__9KVl1jQz74bDG7i&index=5
 # https://github.com/wjbmattingly/ocr_python_textbook
@@ -190,11 +189,11 @@ if __name__=="__main__":
         for img in imgs:
             i += 1
             # work = deskew(img)
-            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))        
+            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))        
             h, w = img.shape    
             work = img[MT:h-MB, ML:w-MR]
             deskewed = deskew(work)
-            cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
+            #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
             txt += pytesseract.image_to_string(deskewed, lang=LANG, config=TESSERACT_CONFIG)
             # print(txt)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", img[MT:h-MB, ML:w-MR])
