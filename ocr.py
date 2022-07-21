@@ -188,9 +188,9 @@ if __name__=="__main__":
         txt = u""
         for img in imgs:
             i += 1
-            # work = deskew(img)
+            work = deskew(img)
             cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", cut_margins(work))        
-            h, w = img.shape    
+            h, w = work.shape    
             work = img[MT:h-MB, ML:w-MR]
             deskewed = deskew(work)
             #cv2.imwrite(ntpath.basename(f)[:-4]+"-"+str(i)+".png", deskewed)
