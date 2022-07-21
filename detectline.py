@@ -171,30 +171,37 @@ if __name__ == "__main__":
                 x1, y1, w1, h1 = cv2.boundingRect(c)
 
                 if ML>=x1 or x1>=W-MR : 
-                    txt += "skip ML : %d %d %d %d" % (x1, y1, w1, h1)
+                    txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
+                    #x,y,w,h = x1,y1,w1,h1
                     continue
                 if MT>=y1 or y1>=H-MB :
-                    txt += "skip MT : %d %d %d %d"% (x1, y1, w1, h1)
+                    txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
+                    #x,y,w,h = x1,y1,w1,h1
                     continue
 
                 if w1*h1 < 999:
-                    txt += "skip 9 : %d %d %d %d " % (x1, y1, w1, h1)  
+                    txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)  
+                    #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
 
                 #print( x, y, w, h, "|", x1, y1, w1, h1)
                 if y1-(y+h)<TH:  # if it close to last box  
                     x, y, w, h = min(x, x1), min(y, y1), max(x+w, x1+w1)-min(x, x1), max(y+h,y1+h1)-min(y, y1)
                 else:
+
                     new_cnts.append((x, y, w, h))
                     # x, y, w, h = x1, y1, w1, h1  # 
                     x, y, w, h = x1, y1, w1, h1
-                    #print("ADD", x, y, w, h)       
+                     
 
             if y1-(y+h)<TH:
                 new_cnts.append((min(x,x1), min(y,y1), max(x+w, x1+w1)-min(x,x1), max(y+h, y1+h1)-min(y,y1)))
             else:
                 new_cnts.append((x,y,w,h))
-                new_cnts.append((x1, y1, w1, h1))
+                if  ML>=x1 or x1>=W-MR or MT>=y1 or y1>=H-MB or w1*h1 < 999:
+                    pass
+                else:
+                    new_cnts.append((x1, y1, w1, h1))
             
             for c in new_cnts:
                 j += 1
