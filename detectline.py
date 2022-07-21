@@ -178,15 +178,14 @@ if __name__ == "__main__":
             for c in cnts:
 
                 x1, y1, w1, h1 = cv2.boundingRect(c)
-                if ML >= x1 or x1 >= x_width-MR
+                if ML >= x1 or x1 >= x_width-MR:
                 #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
                 #x,y,w,h = x1,y1,w1,h1
-                continue
+                    continue
                 if MT >= y1 or y1 >= y_height-MB:
                     #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
-
                 if w1*h1 < 999:
                     #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
@@ -197,7 +196,6 @@ if __name__ == "__main__":
                     x, y, w, h = min(x, x1), min(y, y1), max(
                         x+w, x1+w1)-min(x, x1), max(y+h, y1+h1)-min(y, y1)
                 else:
-
                     new_cnts.append((x, y, w, h))
                     # x, y, w, h = x1, y1, w1, h1  #
                     x, y, w, h = x1, y1, w1, h1
@@ -210,7 +208,7 @@ if __name__ == "__main__":
             
             new_cnts.append((x, y, w, h))
 
-            if ML >= x1 or x1 >= W-MR or MT >= y1 or y1 >= H-MB or w1*h1 < 999:
+            if ML >= x1 or x1 >= x_width-MR or MT >= y1 or y1 >= y_height-MB or w1*h1 < 999:
                 pass
             else:
                 new_cnts.append((x1, y1, w1, h1))
