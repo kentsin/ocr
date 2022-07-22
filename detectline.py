@@ -26,10 +26,10 @@ poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
 DPI = 150
 
-MT = 100   # 80
-ML = 80   # 25
-MR = 80   # 25
-MB = 80   # 40
+MT = 80   # 80 VI\18254613092e2b1b19.pdf  p.2
+ML = 25   # 25 \400615f8957ba0645e.pdf
+MR = 25   # 25
+MB = 40   # 40
 
 TH = 12
 
@@ -183,12 +183,12 @@ if __name__ == "__main__":
                     #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue
-                if MT >= y1 or y1 >= y_height-MB:
+                if MT >= y1 or y1+h1 >= y_height-MB:
                     #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     # when the first one is pass
                     continue
-                if w1*h1 < 99:
+                if w1*h1 < 899:
                     #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
@@ -223,7 +223,7 @@ if __name__ == "__main__":
                 txt += pytesseract.image_to_string(
                     img[y:y+h, x:x+w], lang=LANG, config=TESSERACT_CONFIG)
                 #txt += str(j)+"  |"+ str(x)+", "+str(y)+", "+str(w)+", " +str(h)+", "+str(w*h)+"|  "+str(len(t))+"\n\n"+t+"\n\n"
-                cv2.putText(img, str(j), (x+4, y+4),
+                cv2.putText(img, str(j)+" y="+str(y), (x+1, y-24),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0), 1)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0), 4)
 
