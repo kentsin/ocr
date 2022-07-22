@@ -29,7 +29,7 @@ DPI = 150
 MT = 80   # 80
 ML = 80   # 25
 MR = 80   # 25
-MB = 60   # 40
+MB = 80   # 40
 
 TH = 12
 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
                     #x,y,w,h = x1,y1,w1,h1
                     # when the first one is pass
                     continue
-                if w1*h1 < 999:
+                if w1*h1 < 99:
                     #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
