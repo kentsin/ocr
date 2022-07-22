@@ -26,7 +26,7 @@ poppler_path = r"E:\Program Files (x86)\poppler-22.04.0\Library\bin"
 
 DPI = 150
 
-MT = 80   # 80
+MT = 100   # 80
 ML = 80   # 25
 MR = 80   # 25
 MB = 80   # 40
