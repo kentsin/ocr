@@ -5,6 +5,7 @@
 # @Link    : link
 # @Version : 0.0.1
 
+from hashlib import new
 import os
 import io
 import ntpath
@@ -172,19 +173,20 @@ if __name__ == "__main__":
             # we just care about x,y, w, h
             # combin contours of same heigh
 
-            x, y, w, h = cv2.boundingRect(cnts[0])  # Current Expanding box
+            x, y, w, h = 0,0,0,0  # Current Expanding box
             new_cnts = []
 
             for c in cnts:
 
                 x1, y1, w1, h1 = cv2.boundingRect(c)
                 if ML >= x1 or x1 >= x_width-MR:
-                #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
-                #x,y,w,h = x1,y1,w1,h1
+                    #txt += "skip ML : %d %d %d %d\n" % (x1, y1, w1, h1)
+                    #x,y,w,h = x1,y1,w1,h1
                     continue
                 if MT >= y1 or y1 >= y_height-MB:
                     #txt += "skip MT : %d %d %d %d\n"% (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
+                    # when the first one is pass
                     continue
                 if w1*h1 < 999:
                     #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
@@ -212,6 +214,8 @@ if __name__ == "__main__":
                 pass
             else:
                 new_cnts.append((x1, y1, w1, h1))
+
+            new_cnts = new_cnts[1:] # remove first one 
 
             for c in new_cnts:
                 j += 1
