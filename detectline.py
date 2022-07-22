@@ -167,6 +167,8 @@ if __name__ == "__main__":
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 0), 1)
+                # cv2.putText(img, str(w*h), (x-61, y-24),
+                #           cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0), 2)
 
             # skip c when outside of margins
             # combine when vertically close together
@@ -188,7 +190,7 @@ if __name__ == "__main__":
                     #x,y,w,h = x1,y1,w1,h1
                     # when the first one is pass
                     continue
-                if w1*h1 < 899:
+                if w1*h1 < 99:
                     #txt += "skip 9 : %d %d %d %d\n" % (x1, y1, w1, h1)
                     #x,y,w,h = x1,y1,w1,h1
                     continue   # 900: continue
